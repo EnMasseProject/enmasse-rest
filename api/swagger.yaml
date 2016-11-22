@@ -1,7 +1,7 @@
 ---
 swagger: "2.0"
 info:
-  title: Enmasse Rest Server
+  title: Enmasse Rest
   description: |-
     The REST API server for the EnMasse messaging service
   version: "0.0.0"
@@ -10,7 +10,6 @@ consumes:
 produces:
   - application/json
 schemes:
-  - https
   - http
 definitions:
   ErrorModel:
