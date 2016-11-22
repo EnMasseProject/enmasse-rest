@@ -1,6 +1,6 @@
 FROM golang
 
-ADD cmd/enmasse-rest-server-server/enmasse-rest-server-server /server
+ADD cmd/enmasse-rest-server/enmasse-rest-server /server
 
 EXPOSE 8080
 
