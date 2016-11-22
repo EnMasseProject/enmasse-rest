@@ -1,0 +1,78 @@
+hash: cbfaf0c72a4daf4f8416d286cc45f5fb8af59b6261e31856c222f371d625ace4
+updated: 2016-11-21T11:39:42.881754672+01:00
+imports:
+- name: github.com/asaskevich/govalidator
+  version: 7b3beb6df3c42abd3509abfc3bcacc0fbfb7c877
+- name: github.com/go-openapi/analysis
+  version: 7222828b8ce19afee3c595aef6643b9e42150120
+- name: github.com/go-openapi/errors
+  version: 49fe8b3a0e0d32a617d8d50c67f856ad6e45b28b
+- name: github.com/go-openapi/jsonpointer
+  version: 8d96a2dc61536b690bd36b2e9df0b3c0b62825b2
+- name: github.com/go-openapi/jsonreference
+  version: 36d33bfe519efae5632669801b180bf1a245da3b
+- name: github.com/go-openapi/loads
+  version: 5861a4879a2866943dce3c644c879af9e59c22a3
+  subpackages:
+  - fmts
+- name: github.com/go-openapi/runtime
+  version: 12c07accf0687ab20b1e7b6293d8012ce282499c
+  subpackages:
+  - client
+  - middleware
+  - middleware/denco
+  - middleware/header
+  - middleware/untyped
+  - security
+- name: github.com/go-openapi/spec
+  version: f7ae86df5bc115a2744343016c789a89f065a4bd
+- name: github.com/go-openapi/strfmt
+  version: 34fc3ba7c0f5fb615fda47a2b4fbd4c641b215f2
+- name: github.com/go-openapi/swag
+  version: 3b6d86cd965820f968760d5d419cb4add096bdd7
+- name: github.com/go-openapi/validate
+  version: 027696d4b54399770f1cdcc6c6daa56975f9e14e
+- name: github.com/gorilla/context
+  version: 08b5f424b9271eedf6f9f0ce86cb9396ed337a42
+- name: github.com/jessevdk/go-flags
+  version: 8bc97d602c3bfeb5fc6fc9b5a9c898f245495637
+- name: github.com/mailru/easyjson
+  version: 159cdb893c982e3d1bc6450322fedd514f9c9de3
+  subpackages:
+  - buffer
+  - jlexer
+  - jwriter
+- name: github.com/mitchellh/mapstructure
+  version: f3009df150dadf309fdee4a54ed65c124afad715
+- name: github.com/PuerkitoBio/purell
+  version: 0bcb03f4b4d0a9428594752bd2a3b9aa0a9d4bd4
+- name: github.com/PuerkitoBio/urlesc
+  version: 5bd2802263f21d8788851d5305584c82a5c75d7e
+- name: github.com/tylerb/graceful
+  version: 4df1190835320af7076dfcf27b3d071fd3612caf
+- name: golang.org/x/net
+  version: 4876518f9e71663000c348837735820161a42df7
+  subpackages:
+  - context
+  - context/ctxhttp
+  - idna
+- name: golang.org/x/text
+  version: a263ba8db058568bb9beba166777d9c9dbe75d68
+  subpackages:
+  - transform
+  - unicode/norm
+  - width
+- name: k8s.io/client-go
+  version: 93fcd402979cfad8a7151f96e016416947c6a3cb
+  subpackages:
+  - 1.4/kubernetes
+  - 1.4/kubernetes/typed/core/v1
+  - 1.4/pkg/api
+  - 1.4/pkg/api/errors
+  - 1.4/pkg/api/resource
+  - 1.4/pkg/api/unversioned
+  - 1.4/pkg/api/v1
+  - 1.4/pkg/apis/extensions/v1beta1
+  - 1.4/pkg/util/intstr
+  - 1.4/rest
+testImports: []
