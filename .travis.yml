@@ -1,6 +1,11 @@
 language: go
 go:
 - 1.7
+notifications:
+  email: false
+sudo: required
+services:
+- docker
 install: true
 script: make
 after_success:
