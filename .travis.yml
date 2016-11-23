@@ -1,0 +1,8 @@
+language: go
+go:
+  - 1.7
+install: true
+script: make
+env:
+  global:
+    - GO15VENDOREXPERIMENT=1
