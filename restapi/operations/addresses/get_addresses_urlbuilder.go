@@ -16,7 +16,7 @@ type GetAddressesURL struct {
 func (o *GetAddressesURL) Build() (*url.URL, error) {
 	var result url.URL
 
-	var _path = "/addressconfig"
+	var _path = "/v1/enmasse/addresses"
 
 	result.Path = _path
 

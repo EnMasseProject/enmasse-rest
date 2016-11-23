@@ -60,7 +60,7 @@ definitions:
     additionalProperties:
       $ref: '#/definitions/AddressSpec'
 paths:
-  /addressconfig:
+  /v1/enmasse/addresses:
     get:
       description: |-
         Returns the addressing configuration for the cluster

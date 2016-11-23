@@ -203,12 +203,12 @@ func (o *EnmasseRestAPI) initHandlerCache() {
 	if o.handlers["GET"] == nil {
 		o.handlers[strings.ToUpper("GET")] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"]["/addressconfig"] = addresses.NewGetAddresses(o.context, o.AddressesGetAddressesHandler)
+	o.handlers["GET"]["/v1/enmasse/addresses"] = addresses.NewGetAddresses(o.context, o.AddressesGetAddressesHandler)
 
 	if o.handlers["PUT"] == nil {
 		o.handlers[strings.ToUpper("PUT")] = make(map[string]http.Handler)
 	}
-	o.handlers["PUT"]["/addressconfig"] = addresses.NewPutAddresses(o.context, o.AddressesPutAddressesHandler)
+	o.handlers["PUT"]["/v1/enmasse/addresses"] = addresses.NewPutAddresses(o.context, o.AddressesPutAddressesHandler)
 
 }
 

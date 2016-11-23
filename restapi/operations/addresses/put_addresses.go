@@ -27,7 +27,7 @@ func NewPutAddresses(ctx *middleware.Context, handler PutAddressesHandler) *PutA
 	return &PutAddresses{Context: ctx, Handler: handler}
 }
 
-/*PutAddresses swagger:route PUT /addressconfig addresses putAddresses
+/*PutAddresses swagger:route PUT /v1/enmasse/addresses addresses putAddresses
 
 Update address config
 

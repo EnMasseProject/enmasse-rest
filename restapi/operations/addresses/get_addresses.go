@@ -27,7 +27,7 @@ func NewGetAddresses(ctx *middleware.Context, handler GetAddressesHandler) *GetA
 	return &GetAddresses{Context: ctx, Handler: handler}
 }
 
-/*GetAddresses swagger:route GET /addressconfig addresses getAddresses
+/*GetAddresses swagger:route GET /v1/enmasse/addresses addresses getAddresses
 
 Returns the addressing configuration for the cluster
 
