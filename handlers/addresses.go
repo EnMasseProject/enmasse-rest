@@ -60,9 +60,32 @@ func GetAddressesHandler(params addresses.GetAddressesParams) middleware.Respond
 }
 
 func PutAddressesHandler(params addresses.PutAddressesParams) middleware.Responder {
-    //client, err := getClient()
-    //if err != nil {
-    //    return addresses.NewGetAddressesDefault(500)
-    //}
-    return addresses.NewPutAddressesCreated()
+    jstr, err := json.Marshal(params.AddressConfig)
+    if err != nil {
+        fmt.Printf("Error serializing address config")
+        return addresses.NewPutAddressesDefault(500)
+    }
+    client, err := getClient()
+    if err != nil {
+        fmt.Printf("Unable to create client")
+        return addresses.NewPutAddressesDefault(500)
+    }
+	namespace, err := GetNamespace()
+    if err != nil {
+        fmt.Printf("Unable to find namespace")
+        return addresses.NewPutAddressesDefault(500)
+    }
+    configMap, err := client.Core().ConfigMaps(namespace).Get("maas")
+    if err != nil {
+        fmt.Printf("Unable to get configmap")
+        return addresses.NewPutAddressesDefault(500)
+    }
+
+    configMap.Data["json"] = string(jstr)
+    _, err = client.Core().ConfigMaps(namespace).Update(configMap)
+    if err != nil {
+        fmt.Printf("Unable to update configmap")
+        return addresses.NewPutAddressesDefault(500)
+    }
+    return addresses.NewPutAddressesCreated().WithPayload(params.AddressConfig)
 }
