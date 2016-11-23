@@ -36,24 +36,24 @@ func GetNamespace() (string, error) {
 func GetAddressesHandler(params addresses.GetAddressesParams) middleware.Responder {
     client, err := getClient()
     if err != nil {
-        fmt.Printf("Unable to create client")
+        fmt.Printf("Unable to create client\n")
         return addresses.NewGetAddressesDefault(500)
     }
 	namespace, err := GetNamespace()
     if err != nil {
-        fmt.Printf("Unable to find namespace")
+        fmt.Printf("Unable to find namespace\n")
         return addresses.NewGetAddressesDefault(500)
     }
     configMap, err := client.Core().ConfigMaps(namespace).Get("maas")
     if err != nil {
-        fmt.Printf("Unable to get configmap")
+        fmt.Printf("Unable to get configmap\n")
         return addresses.NewGetAddressesDefault(500)
     }
 
     jstr := configMap.Data["json"]
     var config models.AddressConfig
     if err := json.Unmarshal([]byte(jstr), &config); err != nil {
-        fmt.Printf("Error converting map to json. Have: %s", jstr)
+        fmt.Printf("Error converting map to json. Have: %s\n", jstr)
         return addresses.NewGetAddressesDefault(500)
     }
     return addresses.NewGetAddressesOK().WithPayload(config)
@@ -62,29 +62,29 @@ func GetAddressesHandler(params addresses.GetAddressesParams) middleware.Respond
 func PutAddressesHandler(params addresses.PutAddressesParams) middleware.Responder {
     jstr, err := json.Marshal(params.AddressConfig)
     if err != nil {
-        fmt.Printf("Error serializing address config")
+        fmt.Printf("Error serializing address config\n")
         return addresses.NewPutAddressesDefault(500)
     }
     client, err := getClient()
     if err != nil {
-        fmt.Printf("Unable to create client")
+        fmt.Printf("Unable to create client\n")
         return addresses.NewPutAddressesDefault(500)
     }
 	namespace, err := GetNamespace()
     if err != nil {
-        fmt.Printf("Unable to find namespace")
+        fmt.Printf("Unable to find namespace\n")
         return addresses.NewPutAddressesDefault(500)
     }
     configMap, err := client.Core().ConfigMaps(namespace).Get("maas")
     if err != nil {
-        fmt.Printf("Unable to get configmap")
+        fmt.Printf("Unable to get configmap\n")
         return addresses.NewPutAddressesDefault(500)
     }
 
     configMap.Data["json"] = string(jstr)
     _, err = client.Core().ConfigMaps(namespace).Update(configMap)
     if err != nil {
-        fmt.Printf("Unable to update configmap")
+        fmt.Printf("Unable to update configmap\n")
         return addresses.NewPutAddressesDefault(500)
     }
     return addresses.NewPutAddressesCreated().WithPayload(params.AddressConfig)
