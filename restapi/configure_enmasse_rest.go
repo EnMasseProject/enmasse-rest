@@ -7,9 +7,9 @@ import (
 	errors "github.com/go-openapi/errors"
 	runtime "github.com/go-openapi/runtime"
 
+	"github.com/EnMasseProject/enmasse-rest/handlers"
 	"github.com/EnMasseProject/enmasse-rest/restapi/operations"
 	"github.com/EnMasseProject/enmasse-rest/restapi/operations/addresses"
-    "github.com/EnMasseProject/enmasse-rest/handlers"
 )
 
 // This file is safe to edit. Once it exists it will not be overwritten
