@@ -8,7 +8,7 @@ import (
 
 	"github.com/go-openapi/runtime"
 
-	"github.com/enmasseproject/enmasse-rest/models"
+	"github.com/EnMasseProject/enmasse-rest/models"
 )
 
 /*GetAddressesOK Address config response

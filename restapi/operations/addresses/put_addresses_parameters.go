@@ -11,7 +11,7 @@ import (
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
 
-	"github.com/enmasseproject/enmasse-rest/models"
+	"github.com/EnMasseProject/enmasse-rest/models"
 )
 
 // NewPutAddressesParams creates a new PutAddressesParams object
