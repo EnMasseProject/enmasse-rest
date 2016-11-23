@@ -15,7 +15,7 @@ import (
 	strfmt "github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 
-	"enmasse-rest-api/restapi/operations/addresses"
+	"github.com/enmasseproject/enmasse-rest/restapi/operations/addresses"
 )
 
 // NewEnmasseRestAPI creates a new EnmasseRest instance

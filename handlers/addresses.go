@@ -10,8 +10,8 @@ import (
     v1core "k8s.io/client-go/1.4/kubernetes/typed/core/v1"
     "k8s.io/client-go/1.4/rest"
 
-    "enmasse-rest-api/restapi/operations/addresses"
-    "enmasse-rest-api/models"
+    "github.com/enmasseproject/enmasse-rest/restapi/operations/addresses"
+    "github.com/enmasseproject/enmasse-rest/models"
 )
 
 const NS_PATH = "/var/run/secrets/kubernetes.io/serviceaccount/namespace"
