@@ -10,8 +10,12 @@ import (
 	v1 "k8s.io/client-go/1.4/pkg/api/v1"
 	"k8s.io/client-go/1.4/rest"
 
+	"fmt"
 	"github.com/EnMasseProject/enmasse-rest/models"
 	"github.com/EnMasseProject/enmasse-rest/restapi/operations/addresses"
+	"os"
+	"qpid.apache.org/amqp"
+	"qpid.apache.org/electron"
 )
 
 const NS_PATH = "/var/run/secrets/kubernetes.io/serviceaccount/namespace"
@@ -79,6 +83,28 @@ func GetAddressesHandler(params addresses.GetAddressesParams) middleware.Respond
 	return addresses.NewGetAddressesOK().WithPayload(config)
 }
 
+func GetControllerAddress() string {
+	host := os.Getenv("STORAGE_CONTROLLER_SERVICE_HOST")
+	port := os.Getenv("STORAGE_CONTROLLER_SERVICE_PORT")
+	return host + ":" + port
+}
+
+func DeployConfig(config string) {
+	addr := GetControllerAddress()
+	c, err := electron.Dial("tcp", addr)
+	if err != nil {
+		fmt.Printf("Error connecting to host\n")
+		return
+	}
+	defer c.Close(nil)
+	s, err := c.Sender(electron.Target("address-config"))
+	if err != nil {
+		fmt.Printf("Error creating sender\n")
+		return
+	}
+	s.SendSync(amqp.NewMessageWith(config))
+}
+
 func PutAddressesHandler(params addresses.PutAddressesParams) middleware.Responder {
 	jstr, err := json.Marshal(params.AddressConfig)
 	if err != nil {
@@ -106,5 +132,6 @@ func PutAddressesHandler(params addresses.PutAddressesParams) middleware.Respond
 			return NewPutErrorResponse(NewErrorModel(500, "Unable to create configmap", err.Error()))
 		}
 	}
+	DeployConfig(string(jstr))
 	return addresses.NewPutAddressesCreated().WithPayload(params.AddressConfig)
 }
