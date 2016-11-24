@@ -17,6 +17,7 @@ import:
   - 1.4/pkg/util/intstr
   - 1.4/rest
 - package: qpid.apache.org
-  version: ^0.15.0
+  version: ^0.14.0
   subpackages:
   - amqp
+  - electron
