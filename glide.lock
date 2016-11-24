@@ -1,5 +1,5 @@
-hash: cbfaf0c72a4daf4f8416d286cc45f5fb8af59b6261e31856c222f371d625ace4
-updated: 2016-11-23T14:31:33.963551794+01:00
+hash: 6ab02c9664805290d6fb20034256af399d9be69bf6c300ba0ea3bb49aa31d69a
+updated: 2016-11-24T14:00:37.444875628+01:00
 imports:
 - name: github.com/asaskevich/govalidator
   version: 7b3beb6df3c42abd3509abfc3bcacc0fbfb7c877
@@ -193,4 +193,8 @@ imports:
   - 1.4/tools/clientcmd/api
   - 1.4/tools/metrics
   - 1.4/transport
+- name: qpid.apache.org
+  version: 70aa79ffa4cb5e55868053ba448cec618d79918b
+  subpackages:
+  - amqp
 testImports: []
