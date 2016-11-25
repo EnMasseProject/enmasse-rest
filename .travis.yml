@@ -6,6 +6,9 @@ notifications:
 sudo: required
 services:
 - docker
+before_install:
+- sudo apt-get -qq update
+- sudo apt-get install -y qpid-proton
 install: true
 script: make
 after_success:
