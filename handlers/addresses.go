@@ -5,10 +5,10 @@ import (
 	middleware "github.com/go-openapi/runtime/middleware"
 
 	"io/ioutil"
-	"k8s.io/client-go/1.4/kubernetes"
-	v1core "k8s.io/client-go/1.4/kubernetes/typed/core/v1"
-	v1 "k8s.io/client-go/1.4/pkg/api/v1"
-	"k8s.io/client-go/1.4/rest"
+	"k8s.io/client-go/kubernetes"
+	v1core "k8s.io/client-go/kubernetes/typed/core/v1"
+	v1 "k8s.io/client-go/pkg/api/v1"
+	"k8s.io/client-go/rest"
 
 	"fmt"
 	"github.com/EnMasseProject/enmasse-rest/models"
