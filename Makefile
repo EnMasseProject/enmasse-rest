@@ -1,4 +1,5 @@
 all:
+	godep restore
 	cd cmd/enmasse-rest-server && go build
 
 install:
