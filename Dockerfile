@@ -1,4 +1,6 @@
-FROM golang
+FROM fedora:25
+
+RUN dnf -y install golang qpid-proton-c-devel && dnf clean all -y
 
 ADD cmd/enmasse-rest-server/enmasse-rest-server /server
 

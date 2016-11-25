@@ -1,4 +1,5 @@
 all:
+	./build_tarball
 	godep restore
 	cd cmd/enmasse-rest-server && go build
 
