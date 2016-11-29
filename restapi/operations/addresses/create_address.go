@@ -29,7 +29,7 @@ func NewCreateAddress(ctx *middleware.Context, handler CreateAddressHandler) *Cr
 
 /*CreateAddress swagger:route POST /v1/enmasse/addresses addresses createAddress
 
-Create address config
+Create address config and append to existing map
 
 */
 type CreateAddress struct {

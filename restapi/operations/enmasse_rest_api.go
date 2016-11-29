@@ -47,8 +47,12 @@ type EnmasseRestAPI struct {
 
 	// AddressesCreateAddressHandler sets the operation handler for the create address operation
 	AddressesCreateAddressHandler addresses.CreateAddressHandler
+	// AddressesDeleteAddressesHandler sets the operation handler for the delete addresses operation
+	AddressesDeleteAddressesHandler addresses.DeleteAddressesHandler
 	// AddressesListAddressesHandler sets the operation handler for the list addresses operation
 	AddressesListAddressesHandler addresses.ListAddressesHandler
+	// AddressesPutAddressesHandler sets the operation handler for the put addresses operation
+	AddressesPutAddressesHandler addresses.PutAddressesHandler
 
 	// ServeError is called when an error is received, there is a default handler
 	// but you can set your own with this
@@ -116,8 +120,16 @@ func (o *EnmasseRestAPI) Validate() error {
 		unregistered = append(unregistered, "addresses.CreateAddressHandler")
 	}
 
+	if o.AddressesDeleteAddressesHandler == nil {
+		unregistered = append(unregistered, "addresses.DeleteAddressesHandler")
+	}
+
 	if o.AddressesListAddressesHandler == nil {
 		unregistered = append(unregistered, "addresses.ListAddressesHandler")
+	}
+
+	if o.AddressesPutAddressesHandler == nil {
+		unregistered = append(unregistered, "addresses.PutAddressesHandler")
 	}
 
 	if len(unregistered) > 0 {
@@ -205,10 +217,20 @@ func (o *EnmasseRestAPI) initHandlerCache() {
 	}
 	o.handlers["POST"]["/v1/enmasse/addresses"] = addresses.NewCreateAddress(o.context, o.AddressesCreateAddressHandler)
 
+	if o.handlers["DELETE"] == nil {
+		o.handlers[strings.ToUpper("DELETE")] = make(map[string]http.Handler)
+	}
+	o.handlers["DELETE"]["/v1/enmasse/addresses"] = addresses.NewDeleteAddresses(o.context, o.AddressesDeleteAddressesHandler)
+
 	if o.handlers["GET"] == nil {
 		o.handlers[strings.ToUpper("GET")] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/v1/enmasse/addresses"] = addresses.NewListAddresses(o.context, o.AddressesListAddressesHandler)
+
+	if o.handlers["PUT"] == nil {
+		o.handlers[strings.ToUpper("PUT")] = make(map[string]http.Handler)
+	}
+	o.handlers["PUT"]["/v1/enmasse/addresses"] = addresses.NewPutAddresses(o.context, o.AddressesPutAddressesHandler)
 
 }
 

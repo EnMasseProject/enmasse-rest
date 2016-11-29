@@ -36,6 +36,8 @@ func configureAPI(api *operations.EnmasseRestAPI) http.Handler {
 
 	api.AddressesListAddressesHandler = addresses.ListAddressesHandlerFunc(handlers.ListAddressesHandler)
 	api.AddressesCreateAddressHandler = addresses.CreateAddressHandlerFunc(handlers.CreateAddressHandler)
+	api.AddressesPutAddressesHandler = addresses.PutAddressesHandlerFunc(handlers.PutAddressesHandler)
+	api.AddressesDeleteAddressesHandler = addresses.DeleteAddressesHandlerFunc(handlers.DeleteAddressesHandler)
 
 	api.ServerShutdown = func() {}
 

@@ -43,6 +43,12 @@ definitions:
           $ref: "#/definitions/ErrorModel"
     required:
       - errors
+
+  AddressList:
+    type: array
+    items:
+      type: string
+
   AddressConfig:
     required:
       - store_and_forward
@@ -78,9 +84,62 @@ paths:
             Unexpected error
           schema:
             $ref: "#/definitions/ErrorResponse"
+    delete:
+      description: |-
+        Delete one or more addresses from the configuration
+      operationId: deleteAddresses
+      tags:
+        - addresses
+      parameters:
+        - name: addressList
+          in: body
+          description: List of addresses
+          required: true
+          schema:
+            $ref: "#/definitions/AddressList"
+      responses:
+        "200":
+          description: |-
+            Address config response
+          schema:
+            $ref: "#/definitions/AddressConfigMap"
+        default:
+          description: |-
+            Unexpected error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+    put:
+      description: |-
+        Replace existing address config with a new
+      operationId: putAddresses
+      tags:
+        - addresses
+      parameters:
+        - name: addressConfigMap
+          in: body
+          description: AddressConfig to set
+          required: true
+          schema:
+            $ref: "#/definitions/AddressConfigMap"
+      responses:
+        "201":
+          description: |-
+            Address config response
+          headers:
+            Location:
+              description: |-
+                The address config that was deployed
+              type: string
+          schema:
+            $ref: "#/definitions/AddressConfigMap"
+        default:
+          description: |-
+            Unexpected error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
     post:
       description: |-
-        Create address config
+        Create address config and append to existing map
       operationId: createAddress
       tags:
         - addresses
