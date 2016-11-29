@@ -23,7 +23,7 @@ func configureFlags(api *operations.EnmasseRestAPI) {
 	// api.CommandLineOptionsGroups = []swag.CommandLineOptionsGroup{ ... }
 }
 
-func configureAPI(api *operations.EnmasseRestAPI) http.Handler {
+func configureAPI(api *operations.EnmasseRestAPI, adb db.AddressDB, ctrl controller.Controller) http.Handler {
 	// configure the api here
 	api.ServeError = errors.ServeError
 
@@ -36,16 +36,6 @@ func configureAPI(api *operations.EnmasseRestAPI) http.Handler {
 	api.JSONConsumer = runtime.JSONConsumer()
 
 	api.JSONProducer = runtime.JSONProducer()
-
-	ctrl, err := controller.GetController()
-	if err != nil {
-		panic(err)
-	}
-
-	adb, err := db.GetAddressDB()
-	if err != nil {
-		panic(err)
-	}
 
 	api.AddressesListAddressesHandler = addresses.ListAddressesHandlerFunc(func(p addresses.ListAddressesParams) middleware.Responder {
 		return handlers.ListAddressesHandler(adb, p)

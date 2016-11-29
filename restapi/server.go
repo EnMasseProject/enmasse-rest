@@ -15,6 +15,8 @@ import (
 	graceful "github.com/tylerb/graceful"
 
 	"github.com/EnMasseProject/enmasse-rest/restapi/operations"
+	"github.com/EnMasseProject/enmasse-rest/controller"
+	"github.com/EnMasseProject/enmasse-rest/db"
 )
 
 const (
@@ -39,9 +41,9 @@ func NewServer(api *operations.EnmasseRestAPI) *Server {
 }
 
 // ConfigureAPI configures the API and handlers. Needs to be called before Serve
-func (s *Server) ConfigureAPI() {
+func (s *Server) ConfigureAPI(adb db.AddressDB, ctrl controller.Controller) {
 	if s.api != nil {
-		s.handler = configureAPI(s.api)
+		s.handler = configureAPI(s.api, adb, ctrl)
 	}
 }
 
@@ -95,7 +97,7 @@ func (s *Server) Fatalf(f string, args ...interface{}) {
 }
 
 // SetAPI configures the server with the specified API. Needs to be called before Serve
-func (s *Server) SetAPI(api *operations.EnmasseRestAPI) {
+func (s *Server) SetAPI(api *operations.EnmasseRestAPI, adb db.AddressDB, ctrl controller.Controller) {
 	if api == nil {
 		s.api = nil
 		s.handler = nil
@@ -104,7 +106,7 @@ func (s *Server) SetAPI(api *operations.EnmasseRestAPI) {
 
 	s.api = api
 	s.api.Logger = log.Printf
-	s.handler = configureAPI(api)
+	s.handler = configureAPI(api, adb, ctrl)
 }
 
 func (s *Server) hasScheme(scheme string) bool {

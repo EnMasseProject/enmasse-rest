@@ -11,7 +11,7 @@ import (
 )
 
 type Controller interface {
-	DeployConfig(config models.AddressConfigMap) error
+	DeployConfig(config * models.AddressConfigMap) error
 }
 
 type storageController struct {
@@ -32,7 +32,7 @@ func GetController() (Controller, error) {
 	return &ctrl, nil
 }
 
-func (ctrl *storageController) DeployConfig(config models.AddressConfigMap) error {
+func (ctrl *storageController) DeployConfig(config * models.AddressConfigMap) error {
 	c, err := electron.Dial("tcp", ctrl.addr)
 	if err != nil {
 		return err

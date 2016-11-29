@@ -13,8 +13,8 @@ import (
 const NS_PATH = "/var/run/secrets/kubernetes.io/serviceaccount/namespace"
 
 type AddressDB interface {
-	SetAddresses(config models.AddressConfigMap) (models.AddressConfigMap, error)
-	GetAddresses() (models.AddressConfigMap, error)
+	SetAddresses(config * models.AddressConfigMap) (* models.AddressConfigMap, error)
+	GetAddresses() (* models.AddressConfigMap, error)
 }
 
 type configMapDB struct {
@@ -37,7 +37,7 @@ func GetAddressDB() (AddressDB, error) {
 	return &adb, nil
 }
 
-func (adb *configMapDB) SetAddresses(config models.AddressConfigMap) (models.AddressConfigMap, error) {
+func (adb *configMapDB) SetAddresses(config * models.AddressConfigMap) (* models.AddressConfigMap, error) {
 	jbytes, err := json.Marshal(config)
 	if err != nil {
 		return nil, err
@@ -66,8 +66,8 @@ func (adb *configMapDB) SetAddresses(config models.AddressConfigMap) (models.Add
 	return config, nil
 }
 
-func (adb *configMapDB) GetAddresses() (models.AddressConfigMap, error) {
-	var config models.AddressConfigMap
+func (adb *configMapDB) GetAddresses() (* models.AddressConfigMap, error) {
+	var config = new(models.AddressConfigMap)
 	if adb.configMap != nil {
 		jstr := adb.configMap.Data["json"]
 		if err := json.Unmarshal([]byte(jstr), &config); err != nil {

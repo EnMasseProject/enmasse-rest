@@ -35,14 +35,14 @@ func NewDeleteErrorResponse(model *models.ErrorModel) middleware.Responder {
 }
 
 func PutAddressesHandler(addressDb db.AddressDB, ctrl controller.Controller, params addresses.PutAddressesParams) middleware.Responder {
-	result, errModel := DeployAndSetConfig(addressDb, ctrl, params.AddressConfigMap)
+	result, errModel := DeployAndSetConfig(addressDb, ctrl, &params.AddressConfigMap)
 	if errModel != nil {
 		return NewListErrorResponse(errModel)
 	}
-	return addresses.NewPutAddressesCreated().WithPayload(result)
+	return addresses.NewPutAddressesCreated().WithPayload(*result)
 }
 
-func DeployAndSetConfig(addressDb db.AddressDB, ctrl controller.Controller, config models.AddressConfigMap) (models.AddressConfigMap, *models.ErrorModel) {
+func DeployAndSetConfig(addressDb db.AddressDB, ctrl controller.Controller, config * models.AddressConfigMap) (* models.AddressConfigMap, *models.ErrorModel) {
 	err := ctrl.DeployConfig(config)
 	if err != nil {
 		return nil, NewErrorModel(500, "Error deploying new configuration", err.Error())
@@ -62,14 +62,14 @@ func DeleteAddressesHandler(addressDb db.AddressDB, ctrl controller.Controller, 
 	}
 
 	for _, address := range params.AddressList {
-		delete(config, address)
+		delete(*config, address)
 	}
 
 	result, errModel := DeployAndSetConfig(addressDb, ctrl, config)
 	if errModel != nil {
 		return NewDeleteErrorResponse(errModel)
 	}
-	return addresses.NewDeleteAddressesOK().WithPayload(result)
+	return addresses.NewDeleteAddressesOK().WithPayload(*result)
 }
 
 func ListAddressesHandler(addressDb db.AddressDB, params addresses.ListAddressesParams) middleware.Responder {
@@ -78,7 +78,7 @@ func ListAddressesHandler(addressDb db.AddressDB, params addresses.ListAddresses
 		return NewListErrorResponse(NewErrorModel(500, "Error retrieving addresses from DB", err.Error()))
 	}
 
-	return addresses.NewListAddressesOK().WithPayload(config)
+	return addresses.NewListAddressesOK().WithPayload(*config)
 }
 
 func CreateAddressHandler(addressDb db.AddressDB, ctrl controller.Controller, params addresses.CreateAddressParams) middleware.Responder {
@@ -88,7 +88,7 @@ func CreateAddressHandler(addressDb db.AddressDB, ctrl controller.Controller, pa
 	}
 
 	for k, v := range params.AddressConfigMap {
-		currentConfig[k] = v
+		(*currentConfig)[k] = v
 	}
 
 	result, errModel := DeployAndSetConfig(addressDb, ctrl, currentConfig)
@@ -96,5 +96,5 @@ func CreateAddressHandler(addressDb db.AddressDB, ctrl controller.Controller, pa
 		return NewCreateErrorResponse(errModel)
 	}
 
-	return addresses.NewCreateAddressCreated().WithPayload(result)
+	return addresses.NewCreateAddressCreated().WithPayload(*result)
 }

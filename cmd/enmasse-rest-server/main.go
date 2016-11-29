@@ -8,6 +8,8 @@ import (
 	flags "github.com/jessevdk/go-flags"
 
 	"github.com/EnMasseProject/enmasse-rest/restapi"
+	"github.com/EnMasseProject/enmasse-rest/db"
+	"github.com/EnMasseProject/enmasse-rest/controller"
 	"github.com/EnMasseProject/enmasse-rest/restapi/operations"
 )
 
@@ -46,7 +48,17 @@ func main() {
 		os.Exit(code)
 	}
 
-	server.ConfigureAPI()
+	ctrl, err := controller.GetController()
+	if err != nil {
+		panic(err)
+	}
+
+	adb, err := db.GetAddressDB()
+	if err != nil {
+		panic(err)
+	}
+
+	server.ConfigureAPI(adb, ctrl)
 
 	if err := server.Serve(); err != nil {
 		log.Fatalln(err)
