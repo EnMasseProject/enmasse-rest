@@ -6,7 +6,10 @@ import (
 
 	errors "github.com/go-openapi/errors"
 	runtime "github.com/go-openapi/runtime"
+	middleware "github.com/go-openapi/runtime/middleware"
 
+	"github.com/EnMasseProject/enmasse-rest/controller"
+	"github.com/EnMasseProject/enmasse-rest/db"
 	"github.com/EnMasseProject/enmasse-rest/handlers"
 	"github.com/EnMasseProject/enmasse-rest/restapi/operations"
 	"github.com/EnMasseProject/enmasse-rest/restapi/operations/addresses"
@@ -34,10 +37,28 @@ func configureAPI(api *operations.EnmasseRestAPI) http.Handler {
 
 	api.JSONProducer = runtime.JSONProducer()
 
-	api.AddressesListAddressesHandler = addresses.ListAddressesHandlerFunc(handlers.ListAddressesHandler)
-	api.AddressesCreateAddressHandler = addresses.CreateAddressHandlerFunc(handlers.CreateAddressHandler)
-	api.AddressesPutAddressesHandler = addresses.PutAddressesHandlerFunc(handlers.PutAddressesHandler)
-	api.AddressesDeleteAddressesHandler = addresses.DeleteAddressesHandlerFunc(handlers.DeleteAddressesHandler)
+	ctrl, err := controller.GetController()
+	if err != nil {
+		panic(err)
+	}
+
+	adb, err := db.GetAddressDB()
+	if err != nil {
+		panic(err)
+	}
+
+	api.AddressesListAddressesHandler = addresses.ListAddressesHandlerFunc(func(p addresses.ListAddressesParams) middleware.Responder {
+		return handlers.ListAddressesHandler(adb, p)
+	})
+	api.AddressesCreateAddressHandler = addresses.CreateAddressHandlerFunc(func(p addresses.CreateAddressParams) middleware.Responder {
+		return handlers.CreateAddressHandler(adb, ctrl, p)
+	})
+	api.AddressesPutAddressesHandler = addresses.PutAddressesHandlerFunc(func(p addresses.PutAddressesParams) middleware.Responder {
+		return handlers.PutAddressesHandler(adb, ctrl, p)
+	})
+	api.AddressesDeleteAddressesHandler = addresses.DeleteAddressesHandlerFunc(func(p addresses.DeleteAddressesParams) middleware.Responder {
+		return handlers.DeleteAddressesHandler(adb, ctrl, p)
+	})
 
 	api.ServerShutdown = func() {}
 

@@ -2,6 +2,7 @@ package controller
 
 import (
 	"encoding/json"
+	"errors"
 
 	"github.com/EnMasseProject/enmasse-rest/models"
 	"os"
@@ -9,31 +10,46 @@ import (
 	"qpid.apache.org/electron"
 )
 
-func getControllerAddress() string {
-	host := os.Getenv("STORAGE_CONTROLLER_SERVICE_HOST")
-	port := os.Getenv("STORAGE_CONTROLLER_SERVICE_PORT")
-	return host + ":" + port
+type Controller interface {
+	DeployConfig(config models.AddressConfigMap) error
 }
 
-func DeployConfig(config models.AddressConfigMap) error {
-	addr := getControllerAddress()
-	c, err := electron.Dial("tcp", addr)
+type storageController struct {
+	addr string
+}
+
+func GetController() (Controller, error) {
+	var ctrl storageController
+	host := os.Getenv("STORAGE_CONTROLLER_SERVICE_HOST")
+	port := os.Getenv("STORAGE_CONTROLLER_SERVICE_PORT")
+	if host == "" {
+		return nil, errors.New("STORAGE_CONTROLLER_SERVICE_HOST not specified")
+	}
+	if port == "" {
+		return nil, errors.New("STORAGE_CONTROLLER_SERVICE_PORT not specified")
+	}
+	ctrl.addr = host + ":" + port
+	return &ctrl, nil
+}
+
+func (ctrl *storageController) DeployConfig(config models.AddressConfigMap) error {
+	c, err := electron.Dial("tcp", ctrl.addr)
 	if err != nil {
-        return err
+		return err
 	}
 	defer c.Close(nil)
 	s, err := c.Sender(electron.Target("address-config"))
 	if err != nil {
-        return err
+		return err
 	}
 
-	jbytes , err := json.Marshal(config)
+	jbytes, err := json.Marshal(config)
 	if err != nil {
 		return err
 	}
 
-    payload := string(jbytes)
+	payload := string(jbytes)
 
-    outcome := s.SendSync(amqp.NewMessageWith(payload))
-    return outcome.Error
+	outcome := s.SendSync(amqp.NewMessageWith(payload))
+	return outcome.Error
 }
