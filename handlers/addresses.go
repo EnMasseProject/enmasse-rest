@@ -47,12 +47,12 @@ func NewErrorModel(status int32, title string, details string) *models.ErrorMode
 	return &models.ErrorModel{Status: &status, Details: &details, Title: &title}
 }
 
-func NewGetErrorResponse(model *models.ErrorModel) middleware.Responder {
-	return addresses.NewGetAddressesDefault(int(*model.Status)).WithPayload(NewErrorResponse(model))
+func NewListErrorResponse(model *models.ErrorModel) middleware.Responder {
+	return addresses.NewListAddressesDefault(int(*model.Status)).WithPayload(NewErrorResponse(model))
 }
 
-func NewPutErrorResponse(model *models.ErrorModel) middleware.Responder {
-	return addresses.NewPutAddressesDefault(int(*model.Status)).WithPayload(NewErrorResponse(model))
+func NewCreateErrorResponse(model *models.ErrorModel) middleware.Responder {
+	return addresses.NewCreateAddressDefault(int(*model.Status)).WithPayload(NewErrorResponse(model))
 }
 
 func GetConfigMaps() (v1core.ConfigMapInterface, *models.ErrorModel) {
@@ -67,20 +67,21 @@ func GetConfigMaps() (v1core.ConfigMapInterface, *models.ErrorModel) {
 	return client.Core().ConfigMaps(namespace), nil
 }
 
-func GetAddressesHandler(params addresses.GetAddressesParams) middleware.Responder {
+func ListAddressesHandler(params addresses.ListAddressesParams) middleware.Responder {
 	configMaps, errorModel := GetConfigMaps()
 	if errorModel != nil {
-		return NewGetErrorResponse(errorModel)
+		return NewListErrorResponse(errorModel)
 	}
-	var config models.AddressConfig
-	configMap, err := configMaps.Get("maas")
+	var config models.AddressConfigMap
+	configMap, err := configMaps.Get("addressdb")
 	if err == nil {
 		jstr := configMap.Data["json"]
 		if err := json.Unmarshal([]byte(jstr), &config); err != nil {
-			return NewGetErrorResponse(NewErrorModel(500, "Error reading config", err.Error()))
+			return NewListErrorResponse(NewErrorModel(500, "Error reading config", err.Error()))
 		}
 	}
-	return addresses.NewGetAddressesOK().WithPayload(config)
+
+	return addresses.NewListAddressesOK().WithPayload(config)
 }
 
 func GetControllerAddress() string {
@@ -89,49 +90,75 @@ func GetControllerAddress() string {
 	return host + ":" + port
 }
 
-func DeployConfig(config string) {
+func DeployConfig(config string) error {
 	addr := GetControllerAddress()
 	c, err := electron.Dial("tcp", addr)
 	if err != nil {
-		fmt.Printf("Error connecting to host\n")
-		return
+        return err
 	}
 	defer c.Close(nil)
 	s, err := c.Sender(electron.Target("address-config"))
 	if err != nil {
-		fmt.Printf("Error creating sender\n")
-		return
+        return err
 	}
-	s.SendSync(amqp.NewMessageWith(config))
+    outcome := s.SendSync(amqp.NewMessageWith(config))
+    return outcome.Error
 }
 
-func PutAddressesHandler(params addresses.PutAddressesParams) middleware.Responder {
-	jstr, err := json.Marshal(params.AddressConfig)
-	if err != nil {
-		return NewPutErrorResponse(NewErrorModel(500, "Error serializing address config", err.Error()))
-	}
+func CreateAddressHandler(params addresses.CreateAddressParams) middleware.Responder {
 	configMaps, errorModel := GetConfigMaps()
 	if errorModel != nil {
-		return NewGetErrorResponse(errorModel)
+		return NewCreateErrorResponse(errorModel)
 	}
 
-	configMap, err := configMaps.Get("maas")
-	if err == nil {
-		configMap.Data["json"] = string(jstr)
-		_, err = configMaps.Update(configMap)
-		if err != nil {
-			return NewPutErrorResponse(NewErrorModel(500, "Unable to update configmap", err.Error()))
-		}
-	} else {
-		configMap := new(v1.ConfigMap)
-		configMap.Name = "maas"
-		configMap.Data = make(map[string]string)
-		configMap.Data["json"] = string(jstr)
-		_, err = configMaps.Create(configMap)
-		if err != nil {
-			return NewPutErrorResponse(NewErrorModel(500, "Unable to create configmap", err.Error()))
-		}
+    currentConfig := make(models.AddressConfigMap)
+	configMap, err := configMaps.Get("addressdb")
+    newConfig := err != nil
+    if err == nil {
+        if data, ok := configMap.Data["json"]; ok {
+            fmt.Printf("Data was set, decoding\n")
+            if err := json.Unmarshal([]byte(data), &currentConfig); err != nil {
+                return NewCreateErrorResponse(NewErrorModel(500, "Error decoding existing configuration", err.Error()))
+            }
+        } else {
+            return NewCreateErrorResponse(NewErrorModel(500, "Error retrieving config", err.Error()))
+        }
+    }
+
+    for k, v := range params.AddressConfigMap {
+        currentConfig[k] = v
+    }
+
+	jbytes , err := json.Marshal(currentConfig)
+	if err != nil {
+		return NewCreateErrorResponse(NewErrorModel(500, "Error serializing address config", err.Error()))
 	}
-	DeployConfig(string(jstr))
-	return addresses.NewPutAddressesCreated().WithPayload(params.AddressConfig)
+
+    jstr := string(jbytes)
+
+    fmt.Printf("Deploying new address config: %s\n", jstr)
+    err = DeployConfig(jstr)
+    if err != nil {
+		return NewCreateErrorResponse(NewErrorModel(500, "Error deploying address config", err.Error()))
+    }
+
+    if newConfig {
+        configMap = new(v1.ConfigMap)
+        configMap.Name = "addressdb"
+        configMap.Namespace, _ = GetNamespace()
+        configMap.Data = make(map[string]string)
+        configMap.Data["json"] = jstr
+        _, err = configMaps.Create(configMap)
+		if err != nil {
+			return NewCreateErrorResponse(NewErrorModel(500, "Unable to create configmap", err.Error()))
+		}
+    } else {
+        configMap.Data = make(map[string]string)
+        configMap.Data["json"] = jstr
+        _, err = configMaps.Update(configMap)
+        if err != nil {
+            return NewCreateErrorResponse(NewErrorModel(500, "Unable to update configmap", err.Error()))
+        }
+    }
+	return addresses.NewCreateAddressCreated().WithPayload(currentConfig)
 }

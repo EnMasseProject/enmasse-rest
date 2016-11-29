@@ -10,18 +10,18 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 )
 
-// NewGetAddressesParams creates a new GetAddressesParams object
+// NewListAddressesParams creates a new ListAddressesParams object
 // with the default values initialized.
-func NewGetAddressesParams() GetAddressesParams {
+func NewListAddressesParams() ListAddressesParams {
 	var ()
-	return GetAddressesParams{}
+	return ListAddressesParams{}
 }
 
-// GetAddressesParams contains all the bound params for the get addresses operation
+// ListAddressesParams contains all the bound params for the list addresses operation
 // typically these are obtained from a http.Request
 //
-// swagger:parameters getAddresses
-type GetAddressesParams struct {
+// swagger:parameters listAddresses
+type ListAddressesParams struct {
 
 	// HTTP Request Object
 	HTTPRequest *http.Request
@@ -29,7 +29,7 @@ type GetAddressesParams struct {
 
 // BindRequest both binds and validates a request, it assumes that complex things implement a Validatable(strfmt.Registry) error interface
 // for simple values it will use straight method calls
-func (o *GetAddressesParams) BindRequest(r *http.Request, route *middleware.MatchedRoute) error {
+func (o *ListAddressesParams) BindRequest(r *http.Request, route *middleware.MatchedRoute) error {
 	var res []error
 	o.HTTPRequest = r
 

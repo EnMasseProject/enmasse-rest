@@ -8,12 +8,12 @@ import (
 	"net/url"
 )
 
-// GetAddressesURL generates an URL for the get addresses operation
-type GetAddressesURL struct {
+// CreateAddressURL generates an URL for the create address operation
+type CreateAddressURL struct {
 }
 
 // Build a url path and query string
-func (o *GetAddressesURL) Build() (*url.URL, error) {
+func (o *CreateAddressURL) Build() (*url.URL, error) {
 	var result url.URL
 
 	var _path = "/v1/enmasse/addresses"
@@ -24,7 +24,7 @@ func (o *GetAddressesURL) Build() (*url.URL, error) {
 }
 
 // Must is a helper function to panic when the url builder returns an error
-func (o *GetAddressesURL) Must(u *url.URL, err error) *url.URL {
+func (o *CreateAddressURL) Must(u *url.URL, err error) *url.URL {
 	if err != nil {
 		panic(err)
 	}
@@ -35,17 +35,17 @@ func (o *GetAddressesURL) Must(u *url.URL, err error) *url.URL {
 }
 
 // String returns the string representation of the path with query string
-func (o *GetAddressesURL) String() string {
+func (o *CreateAddressURL) String() string {
 	return o.Must(o.Build()).String()
 }
 
 // BuildFull builds a full url with scheme, host, path and query string
-func (o *GetAddressesURL) BuildFull(scheme, host string) (*url.URL, error) {
+func (o *CreateAddressURL) BuildFull(scheme, host string) (*url.URL, error) {
 	if scheme == "" {
-		return nil, errors.New("scheme is required for a full url on GetAddressesURL")
+		return nil, errors.New("scheme is required for a full url on CreateAddressURL")
 	}
 	if host == "" {
-		return nil, errors.New("host is required for a full url on GetAddressesURL")
+		return nil, errors.New("host is required for a full url on CreateAddressURL")
 	}
 
 	base, err := o.Build()
@@ -59,6 +59,6 @@ func (o *GetAddressesURL) BuildFull(scheme, host string) (*url.URL, error) {
 }
 
 // StringFull returns the string representation of a complete url
-func (o *GetAddressesURL) StringFull(scheme, host string) string {
+func (o *CreateAddressURL) StringFull(scheme, host string) string {
 	return o.Must(o.BuildFull(scheme, host)).String()
 }

@@ -45,10 +45,10 @@ type EnmasseRestAPI struct {
 	// JSONProducer registers a producer for a "application/json" mime type
 	JSONProducer runtime.Producer
 
-	// AddressesGetAddressesHandler sets the operation handler for the get addresses operation
-	AddressesGetAddressesHandler addresses.GetAddressesHandler
-	// AddressesPutAddressesHandler sets the operation handler for the put addresses operation
-	AddressesPutAddressesHandler addresses.PutAddressesHandler
+	// AddressesCreateAddressHandler sets the operation handler for the create address operation
+	AddressesCreateAddressHandler addresses.CreateAddressHandler
+	// AddressesListAddressesHandler sets the operation handler for the list addresses operation
+	AddressesListAddressesHandler addresses.ListAddressesHandler
 
 	// ServeError is called when an error is received, there is a default handler
 	// but you can set your own with this
@@ -112,12 +112,12 @@ func (o *EnmasseRestAPI) Validate() error {
 		unregistered = append(unregistered, "JSONProducer")
 	}
 
-	if o.AddressesGetAddressesHandler == nil {
-		unregistered = append(unregistered, "addresses.GetAddressesHandler")
+	if o.AddressesCreateAddressHandler == nil {
+		unregistered = append(unregistered, "addresses.CreateAddressHandler")
 	}
 
-	if o.AddressesPutAddressesHandler == nil {
-		unregistered = append(unregistered, "addresses.PutAddressesHandler")
+	if o.AddressesListAddressesHandler == nil {
+		unregistered = append(unregistered, "addresses.ListAddressesHandler")
 	}
 
 	if len(unregistered) > 0 {
@@ -200,15 +200,15 @@ func (o *EnmasseRestAPI) initHandlerCache() {
 		o.handlers = make(map[string]map[string]http.Handler)
 	}
 
+	if o.handlers["POST"] == nil {
+		o.handlers[strings.ToUpper("POST")] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/v1/enmasse/addresses"] = addresses.NewCreateAddress(o.context, o.AddressesCreateAddressHandler)
+
 	if o.handlers["GET"] == nil {
 		o.handlers[strings.ToUpper("GET")] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"]["/v1/enmasse/addresses"] = addresses.NewGetAddresses(o.context, o.AddressesGetAddressesHandler)
-
-	if o.handlers["PUT"] == nil {
-		o.handlers[strings.ToUpper("PUT")] = make(map[string]http.Handler)
-	}
-	o.handlers["PUT"]["/v1/enmasse/addresses"] = addresses.NewPutAddresses(o.context, o.AddressesPutAddressesHandler)
+	o.handlers["GET"]["/v1/enmasse/addresses"] = addresses.NewListAddresses(o.context, o.AddressesListAddressesHandler)
 
 }
 

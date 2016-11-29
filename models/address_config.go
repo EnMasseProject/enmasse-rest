@@ -12,18 +12,54 @@ import (
 
 // AddressConfig address config
 // swagger:model AddressConfig
-type AddressConfig map[string]AddressSpec
+type AddressConfig struct {
+
+	// flavor
+	Flavor string `json:"flavor,omitempty"`
+
+	// multicast
+	// Required: true
+	Multicast *bool `json:"multicast"`
+
+	// store and forward
+	// Required: true
+	StoreAndForward *bool `json:"store_and_forward"`
+}
 
 // Validate validates this address config
-func (m AddressConfig) Validate(formats strfmt.Registry) error {
+func (m *AddressConfig) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := validate.Required("", "body", AddressConfig(m)); err != nil {
-		return err
+	if err := m.validateMulticast(formats); err != nil {
+		// prop
+		res = append(res, err)
+	}
+
+	if err := m.validateStoreAndForward(formats); err != nil {
+		// prop
+		res = append(res, err)
 	}
 
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *AddressConfig) validateMulticast(formats strfmt.Registry) error {
+
+	if err := validate.Required("multicast", "body", m.Multicast); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *AddressConfig) validateStoreAndForward(formats strfmt.Registry) error {
+
+	if err := validate.Required("store_and_forward", "body", m.StoreAndForward); err != nil {
+		return err
+	}
+
 	return nil
 }

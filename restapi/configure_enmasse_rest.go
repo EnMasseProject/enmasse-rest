@@ -34,8 +34,8 @@ func configureAPI(api *operations.EnmasseRestAPI) http.Handler {
 
 	api.JSONProducer = runtime.JSONProducer()
 
-	api.AddressesGetAddressesHandler = addresses.GetAddressesHandlerFunc(handlers.GetAddressesHandler)
-	api.AddressesPutAddressesHandler = addresses.PutAddressesHandlerFunc(handlers.PutAddressesHandler)
+	api.AddressesListAddressesHandler = addresses.ListAddressesHandlerFunc(handlers.ListAddressesHandler)
+	api.AddressesCreateAddressHandler = addresses.CreateAddressHandlerFunc(handlers.CreateAddressHandler)
 
 	api.ServerShutdown = func() {}
 
