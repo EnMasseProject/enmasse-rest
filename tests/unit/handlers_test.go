@@ -1,7 +1,7 @@
 package unittest
 
 import (
-//    "errors"
+    "errors"
     "testing"
     "fmt"
     loads "github.com/go-openapi/loads"
@@ -84,6 +84,7 @@ func GetClient(server * restapi.Server) * client.EnmasseRest {
 }
 
 func TestListHandler(t * testing.T) {
+    assert := assert.New(t)
     fdb := fakeDb { nil, nil }
     ctrl := fakeCtrl { nil, nil }
 
@@ -96,13 +97,21 @@ func TestListHandler(t * testing.T) {
         "myqueue": getAddress(true, false, "vanilla-queue"),
     }
 
+    // Check that addresses are listed
     resp, err := cli.Addresses.ListAddresses(nil)
-    assert.Nil(t, err)
-    assert.NotNil(t, resp)
-    assert.Equal(t, resp.Payload, *fdb.config)
+    assert.Nil(err)
+    assert.NotNil(resp)
+    assert.Equal(resp.Payload, *fdb.config)
+
+    // Check that errors are propagated
+    fdb.err = errors.New("Error1")
+    resp, err = cli.Addresses.ListAddresses(nil)
+    assert.Nil(resp)
+    assert.NotNil(err)
 }
 
 func TestPutHandler(t * testing.T) {
+    assert := assert.New(t)
     fdb := fakeDb { nil, nil }
     ctrl := fakeCtrl { nil, nil }
 
@@ -115,12 +124,28 @@ func TestPutHandler(t * testing.T) {
         "myqueue": getAddress(true, false, "vanilla-queue"),
     }
 
+    // Check that addresses can be replaced
     resp, err := cli.Addresses.PutAddresses(addr.NewPutAddressesParams().WithAddressConfigMap(config))
-    assert.Nil(t, err)
-    assert.NotNil(t, resp)
-    assert.Equal(t, resp.Payload, config)
-    assert.Equal(t, *fdb.config, config)
-    assert.Equal(t, *ctrl.config, config)
+    assert.Nil(err)
+    assert.NotNil(resp)
+    assert.Equal(resp.Payload, config)
+    assert.Equal(*fdb.config, config)
+    assert.Equal(*ctrl.config, config)
+
+    // Ensure that errors are propagated
+    fdb.err = errors.New("Error1")
+    resp, err = cli.Addresses.PutAddresses(addr.NewPutAddressesParams().WithAddressConfigMap(config))
+    assert.Nil(resp)
+    assert.NotNil(err)
+
+    // Ensure that previous config is still valid if deployment fails
+    fdb.err = nil
+    fdb.config = nil
+    ctrl.err = errors.New("Error2")
+    resp, err = cli.Addresses.PutAddresses(addr.NewPutAddressesParams().WithAddressConfigMap(config))
+    assert.Nil(resp)
+    assert.NotNil(err)
+    assert.Nil(fdb.config)
 }
 
 func TestCreateHandler(t * testing.T) {
@@ -143,6 +168,7 @@ func TestCreateHandler(t * testing.T) {
         "mytopic": getAddress(true, true, "vanilla-topic"),
     }
 
+    // Check that addresses can be appended
     resp, err := cli.Addresses.CreateAddress(addr.NewCreateAddressParams().WithAddressConfigMap(newConfig))
     assert.Nil(err)
     assert.NotNil(resp)
@@ -154,6 +180,21 @@ func TestCreateHandler(t * testing.T) {
     assert.Equal(resp.Payload, expectedConfig)
     assert.Equal(*fdb.config, expectedConfig)
     assert.Equal(*ctrl.config, expectedConfig)
+
+    // Test if create errors are handled correctly
+    fdb.err = errors.New("Error1")
+    resp, err = cli.Addresses.CreateAddress(addr.NewCreateAddressParams().WithAddressConfigMap(newConfig))
+    assert.Nil(resp)
+    assert.NotNil(err)
+
+    // Verify that old address is kept on errors
+    fdb.err = nil
+    fdb.config = &config
+    ctrl.err = errors.New("Error2")
+    resp, err = cli.Addresses.CreateAddress(addr.NewCreateAddressParams().WithAddressConfigMap(newConfig))
+    assert.Nil(resp)
+    assert.NotNil(err)
+    assert.Equal(*fdb.config, config)
 }
 
 func TestDeleteHandler(t * testing.T) {
@@ -177,6 +218,7 @@ func TestDeleteHandler(t * testing.T) {
         "myqueue",
     }
 
+    // Test that addresses can be deleted
     resp, err := cli.Addresses.DeleteAddresses(addr.NewDeleteAddressesParams().WithAddressList(toDelete))
     assert.Nil(err)
     assert.NotNil(resp)
@@ -187,4 +229,19 @@ func TestDeleteHandler(t * testing.T) {
     assert.Equal(resp.Payload, expectedConfig)
     assert.Equal(*fdb.config, expectedConfig)
     assert.Equal(*ctrl.config, expectedConfig)
+
+    // Test errors when deleting address
+    fdb.err = errors.New("Error1")
+    resp, err = cli.Addresses.DeleteAddresses(addr.NewDeleteAddressesParams().WithAddressList(toDelete))
+    assert.Nil(resp)
+    assert.NotNil(err)
+
+    // Verify that old address is kept on errors
+    fdb.err = nil
+    fdb.config = &config
+    ctrl.err = errors.New("Error2")
+    resp, err = cli.Addresses.DeleteAddresses(addr.NewDeleteAddressesParams().WithAddressList(toDelete))
+    assert.Nil(resp)
+    assert.NotNil(err)
+    assert.Equal(*fdb.config, config)
 }
