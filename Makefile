@@ -1,4 +1,4 @@
-all: build
+all: build test
 
 proton:
 	bash build_tarball
