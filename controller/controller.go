@@ -11,7 +11,7 @@ import (
 )
 
 type Controller interface {
-	DeployConfig(config * models.AddressConfigMap) error
+	DeployConfig(config *models.AddressConfigMap) error
 }
 
 type storageController struct {
@@ -23,16 +23,23 @@ func GetController() (Controller, error) {
 	host := os.Getenv("STORAGE_CONTROLLER_SERVICE_HOST")
 	port := os.Getenv("STORAGE_CONTROLLER_SERVICE_PORT")
 	if host == "" {
-		return nil, errors.New("STORAGE_CONTROLLER_SERVICE_HOST not specified")
+		host = os.Getenv("ADMIN_SERVICE_HOST")
 	}
 	if port == "" {
-		return nil, errors.New("STORAGE_CONTROLLER_SERVICE_PORT not specified")
+		port = os.Getenv("ADMIN_SERVICE_PORT_STORAGE_CONTROLLER")
+	}
+
+	if host == "" {
+		return nil, errors.New("Neither ADMIN_SERVICE_HOST or STORAGE_CONTROLLER_SERVICE_HOST specified")
+	}
+	if port == "" {
+		return nil, errors.New("Neither ADMIN_SERVICE_PORT_STORAGE_CONTROLLER or STORAGE_CONTROLLER_SERVICE_PORT specified")
 	}
 	ctrl.addr = host + ":" + port
 	return &ctrl, nil
 }
 
-func (ctrl *storageController) DeployConfig(config * models.AddressConfigMap) error {
+func (ctrl *storageController) DeployConfig(config *models.AddressConfigMap) error {
 	c, err := electron.Dial("tcp", ctrl.addr)
 	if err != nil {
 		return err
