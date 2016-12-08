@@ -13,13 +13,12 @@ import (
 const NS_PATH = "/var/run/secrets/kubernetes.io/serviceaccount/namespace"
 
 type AddressDB interface {
-	SetAddresses(config * models.AddressConfigMap) (* models.AddressConfigMap, error)
-	GetAddresses() (* models.AddressConfigMap, error)
+	SetAddresses(config *models.AddressConfigMap) (*models.AddressConfigMap, error)
+	GetAddresses() (*models.AddressConfigMap, error)
 }
 
 type configMapDB struct {
 	configMaps v1core.ConfigMapInterface
-	configMap  *v1.ConfigMap
 }
 
 func GetAddressDB() (AddressDB, error) {
@@ -30,35 +29,32 @@ func GetAddressDB() (AddressDB, error) {
 	if err != nil {
 		return nil, err
 	}
-	adb.configMap, err = adb.configMaps.Get("addressdb")
-    if err != nil {
-        adb.configMap = nil
-    }
+
 	return &adb, nil
 }
 
-func (adb *configMapDB) SetAddresses(config * models.AddressConfigMap) (* models.AddressConfigMap, error) {
+func (adb *configMapDB) SetAddresses(config *models.AddressConfigMap) (*models.AddressConfigMap, error) {
 	jbytes, err := json.Marshal(config)
 	if err != nil {
 		return nil, err
 	}
 
 	jstr := string(jbytes)
-
-	if adb.configMap == nil {
-		adb.configMap = new(v1.ConfigMap)
-		adb.configMap.Name = "addressdb"
-		adb.configMap.Namespace, _ = getNamespace()
-		adb.configMap.Data = make(map[string]string)
-		adb.configMap.Data["json"] = jstr
-		_, err = adb.configMaps.Create(adb.configMap)
+	configMap, err := adb.configMaps.Get("addressdb")
+	if err != nil {
+		configMap = new(v1.ConfigMap)
+		configMap.Name = "addressdb"
+		configMap.Namespace, _ = getNamespace()
+		configMap.Data = make(map[string]string)
+		configMap.Data["json"] = jstr
+		_, err = adb.configMaps.Create(configMap)
 		if err != nil {
 			return nil, err
 		}
 	} else {
-		adb.configMap.Data = make(map[string]string)
-		adb.configMap.Data["json"] = jstr
-		_, err = adb.configMaps.Update(adb.configMap)
+		configMap.Data = make(map[string]string)
+		configMap.Data["json"] = jstr
+		_, err = adb.configMaps.Update(configMap)
 		if err != nil {
 			return nil, err
 		}
@@ -66,13 +62,15 @@ func (adb *configMapDB) SetAddresses(config * models.AddressConfigMap) (* models
 	return config, nil
 }
 
-func (adb *configMapDB) GetAddresses() (* models.AddressConfigMap, error) {
+func (adb *configMapDB) GetAddresses() (*models.AddressConfigMap, error) {
 	var config = new(models.AddressConfigMap)
-	if adb.configMap != nil {
-		jstr := adb.configMap.Data["json"]
-		if err := json.Unmarshal([]byte(jstr), &config); err != nil {
-			return nil, err
-		}
+	configMap, err := adb.configMaps.Get("addressdb")
+	if err != nil {
+		return nil, err
+	}
+	jstr := configMap.Data["json"]
+	if err := json.Unmarshal([]byte(jstr), &config); err != nil {
+		return nil, err
 	}
 	return config, nil
 }
