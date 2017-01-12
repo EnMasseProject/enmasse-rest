@@ -44,6 +44,9 @@ func (fdb * fakeDb) SetAddresses(config * models.AddressConfigMap) (*models.Addr
     }
 }
 
+func (ctrl * fakeCtrl) Close() {
+}
+
 func (ctrl * fakeCtrl) DeployConfig(config * models.AddressConfigMap) error {
     if ctrl.err != nil {
         return ctrl.err
