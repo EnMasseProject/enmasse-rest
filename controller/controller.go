@@ -12,10 +12,16 @@ import (
 
 type Controller interface {
 	DeployConfig(config *models.AddressConfigMap) error
+    Close()
 }
 
 type storageController struct {
-	addr string
+	conn electron.Connection
+    sender electron.Sender
+}
+
+func (ctrl * storageController) Close() {
+    ctrl.conn.Close(nil)
 }
 
 func GetController() (Controller, error) {
@@ -23,7 +29,7 @@ func GetController() (Controller, error) {
 	host := os.Getenv("STORAGE_CONTROLLER_SERVICE_HOST")
 	port := os.Getenv("STORAGE_CONTROLLER_SERVICE_PORT")
 	if host == "" {
-		host = os.Getenv("ADMIN_SERVICE_HOST")
+		host = "127.0.0.1" // os.Getenv("ADMIN_SERVICE_HOST")
 	}
 	if port == "" {
 		port = os.Getenv("ADMIN_SERVICE_PORT_STORAGE_CONTROLLER")
@@ -35,21 +41,18 @@ func GetController() (Controller, error) {
 	if port == "" {
 		return nil, errors.New("Neither ADMIN_SERVICE_PORT_STORAGE_CONTROLLER or STORAGE_CONTROLLER_SERVICE_PORT specified")
 	}
-	ctrl.addr = host + ":" + port
-	return &ctrl, nil
+    addr := host + ":" + port
+    conn, err := electron.Dial("tcp", addr)
+	if err != nil {
+		return nil, err
+	}
+    ctrl.conn = conn
+    sender, err := ctrl.conn.Sender(electron.Target("address-config"))
+    ctrl.sender = sender
+	return &ctrl, err
 }
 
 func (ctrl *storageController) DeployConfig(config *models.AddressConfigMap) error {
-	c, err := electron.Dial("tcp", ctrl.addr)
-	if err != nil {
-		return err
-	}
-	defer c.Close(nil)
-	s, err := c.Sender(electron.Target("address-config"))
-	if err != nil {
-		return err
-	}
-
 	jbytes, err := json.Marshal(config)
 	if err != nil {
 		return err
@@ -57,6 +60,6 @@ func (ctrl *storageController) DeployConfig(config *models.AddressConfigMap) err
 
 	payload := string(jbytes)
 
-	outcome := s.SendSync(amqp.NewMessageWith(payload))
+	outcome := ctrl.sender.SendSync(amqp.NewMessageWith(payload))
 	return outcome.Error
 }

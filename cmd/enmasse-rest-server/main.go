@@ -52,6 +52,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+    defer ctrl.Close()
 
 	adb, err := db.GetAddressDB()
 	if err != nil {
